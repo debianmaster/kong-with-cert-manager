@@ -1,0 +1,58 @@
+
+
+  
+image:
+ repository: kong/kong-gateway
+ tag: "3.10.0.0"
+  
+# Mount the secret created earlier
+secretVolumes:
+#  - kong-cp-kong-cluster-cert
+#  - kong-cp-kong-admin-cert  
+#  - kong-cp-kong-proxy-cert
+  
+env:
+  role: data_plane
+  database: "off"
+  status_listen: 0.0.0.0:8100
+  cluster_control_plane: kong-cp-kong-cluster.kong.svc.cluster.local:8005
+  cluster_telemetry_endpoint: kong-cp-kong-clustertelemetry.kong.svc.cluster.local:8006
+  cluster_mtls: pki
+  cluster_server_name: kong-cp-kong-cluster.kong.svc.cluster.local
+  cluster_telemetry_server_name: kong-cp-kong-clustertelemetry.kong.svc.cluster.local
+  lua_ssl_verify_depth: 2
+  cluster_ca_cert: /etc/cert-manager/cluster/ca.crt
+  lua_ssl_trusted_certificate: /etc/secrets/kong-cluster-cert/tls.crt
+  cluster_cert: /etc/cert-manager/cluster/tls.crt
+  cluster_cert_key: /etc/cert-manager/cluster/tls.key
+  
+# Enterprise functionality
+enterprise:
+ enabled: false
+  
+# The control plane serves the Admin API
+admin:
+  enabled: false
+
+manager:
+  enabled: false
+
+portal:
+  enabled: false
+
+portalapi:
+  enabled: false
+
+proxy:
+  enabled: true
+  type: LoadBalancer
+  annotations: {}
+  tls:
+    enabled: true
+    servicePort: 443
+    containerPort: 8443
+    parameters:
+      - http2
+  # stream: {}
+  ingress:
+    enabled: true
